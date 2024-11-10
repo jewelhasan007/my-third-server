@@ -67,6 +67,35 @@ app.get('/users', async(req, res)=>{
   res.send(result) 
 })
 
+
+
+// READ single users in mongoDb
+app.get('/users/:id', async (req, res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const user = await usersCollections.findOne(query)
+  res.send(user)
+  console.log('the users profile name', id)
+})
+
+// UPDATE users in mongodB
+app.put('/users/:id', async(req, res)=>{
+  const id = req.params.id;
+  const user = req.body;
+  console.log(id, user)
+  
+  const filter = {_id: new ObjectId(id)}
+  const options = {upsert: true}
+  const updatedUser ={
+    $set : {
+      name: user.name,
+      email: user.email
+    }
+  }
+const result = await usersCollections.updateOne(filter, options, updatedUser);
+  req.send(result)
+})
+
 // DELETE users from mongoDb
 app.delete('/users/:id', async(req, res)=>{
   const newId = req.params.id;
@@ -75,6 +104,7 @@ app.delete('/users/:id', async(req, res)=>{
     const result = await usersCollections.deleteOne(query)
     res.send(result)
   })
+
 
 // Send a ping to confirm a successful connection
 await client.db("admin").command({ ping: 1 });
